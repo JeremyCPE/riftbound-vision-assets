@@ -44,6 +44,46 @@ def add_tree(zip_handle: zipfile.ZipFile, source: Path, archive_root: str) -> in
     return file_count
 
 
+def write_pack_zip(
+    pack_path: Path,
+    cards_root: Path,
+    image_paths: list[Path],
+    *,
+    include_index: bool,
+) -> int:
+    """Write a runtime cards ZIP and return the file count."""
+    file_count = 0
+    with zipfile.ZipFile(pack_path, "w", compression=zipfile.ZIP_STORED) as zf:
+        if include_index:
+            zf.write(cards_root / "index.json", "cards/index.json")
+            file_count += 1
+        for image_path in image_paths:
+            arcname = f"cards/images/{image_path.relative_to(cards_root / 'images').as_posix()}"
+            zf.write(image_path, arcname)
+            file_count += 1
+    return file_count
+
+
+def split_images_by_size(image_paths: list[Path], max_bytes: int) -> list[list[Path]]:
+    """Split images into parts below max_bytes where practical."""
+    if max_bytes <= 0:
+        return [image_paths]
+    parts: list[list[Path]] = []
+    current: list[Path] = []
+    current_size = 0
+    for image_path in image_paths:
+        image_size = image_path.stat().st_size
+        if current and current_size + image_size > max_bytes:
+            parts.append(current)
+            current = []
+            current_size = 0
+        current.append(image_path)
+        current_size += image_size
+    if current:
+        parts.append(current)
+    return parts
+
+
 def _resize_if_needed(image: Image.Image, max_width: int) -> Image.Image:
     if max_width <= 0 or image.width <= max_width:
         return image
@@ -125,6 +165,12 @@ def main() -> int:
         default="",
         help="Base URL used in manifest. Defaults to the GitHub Release URL.",
     )
+    parser.add_argument(
+        "--split-size-mb",
+        type=int,
+        default=45,
+        help="Split image packs into ZIP files below this size. 0 disables splitting.",
+    )
     args = parser.parse_args()
 
     source = Path(args.source).resolve()
@@ -139,8 +185,6 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     format_suffix = args.format if args.format != "source" else "png"
-    pack_name = f"{args.pack_id}-{args.version}-{format_suffix}.zip"
-    pack_path = output_dir / pack_name
     release_tag = f"cards-{args.version}"
     release_base_url = (
         f"https://github.com/{args.owner}/{args.repo}/releases/download/{release_tag}"
@@ -148,6 +192,7 @@ def main() -> int:
     url_base = args.url_base.rstrip("/") or release_base_url
 
     start = time.time()
+    generated_packs: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory() as tmp_dir:
         package_cards = _build_source_tree(
             source,
@@ -156,12 +201,37 @@ def main() -> int:
             quality=args.quality,
             max_width=args.max_width,
         )
-        with zipfile.ZipFile(pack_path, "w", compression=zipfile.ZIP_STORED) as zf:
-            zf.write(package_cards / "index.json", "cards/index.json")
-            file_count = 1 + add_tree(zf, package_cards / "images", "cards/images")
+        image_paths = sorted((package_cards / "images").rglob("*"))
+        image_paths = [path for path in image_paths if path.is_file()]
+        split_size_bytes = args.split_size_mb * 1024 * 1024
+        image_parts = split_images_by_size(image_paths, split_size_bytes)
 
-    size = pack_path.stat().st_size
-    checksum = sha256_file(pack_path)
+        for index, image_part in enumerate(image_parts, start=1):
+            suffix = (
+                f"{format_suffix}.zip"
+                if len(image_parts) == 1
+                else f"{format_suffix}-part{index:02d}.zip"
+            )
+            pack_name = f"{args.pack_id}-{args.version}-{suffix}"
+            pack_path = output_dir / pack_name
+            file_count = write_pack_zip(
+                pack_path,
+                package_cards,
+                image_part,
+                include_index=index == 1,
+            )
+            generated_packs.append(
+                {
+                    "path": pack_path,
+                    "name": pack_name,
+                    "file_count": file_count,
+                    "part": index,
+                    "part_count": len(image_parts),
+                    "sha256": sha256_file(pack_path),
+                    "size": pack_path.stat().st_size,
+                }
+            )
+
     with index_path.open(encoding="utf-8") as handle:
         card_index = json.load(handle)
 
@@ -169,22 +239,30 @@ def main() -> int:
         "schema": 1,
         "version": args.version,
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "total_cards": card_index.get("total_cards"),
         "packs": [
             {
-                "id": args.pack_id,
+                "id": (
+                    args.pack_id
+                    if pack["part_count"] == 1
+                    else f"{args.pack_id}-part-{pack['part']}"
+                ),
                 "kind": "overlay",
                 "version": args.version,
-                "url": f"{url_base}/{pack_name}",
-                "sha256": checksum,
-                "size": size,
+                "url": f"{url_base}/{pack['name']}",
+                "sha256": pack["sha256"],
+                "size": pack["size"],
                 "required": True,
                 "layout": "cards/index.json + cards/images/*",
                 "image_format": args.format,
                 "quality": args.quality if args.format != "source" else None,
                 "max_width": args.max_width,
+                "part": pack["part"],
+                "part_count": pack["part_count"],
                 "total_cards": card_index.get("total_cards"),
-                "file_count": file_count,
+                "file_count": pack["file_count"],
             }
+            for pack in generated_packs
         ],
     }
 
@@ -195,11 +273,11 @@ def main() -> int:
     )
 
     elapsed = time.time() - start
-    print(f"Pack: {pack_path}")
+    for pack in generated_packs:
+        print(f"Pack: {pack['path']} ({pack['size'] / 1024 / 1024:.1f} MB)")
     print(f"Manifest: {manifest_path}")
-    print(f"Files: {file_count}")
-    print(f"Size: {size / 1024 / 1024:.1f} MB")
-    print(f"SHA256: {checksum}")
+    print(f"Parts: {len(generated_packs)}")
+    print(f"Size: {sum(pack['size'] for pack in generated_packs) / 1024 / 1024:.1f} MB")
     print(f"Elapsed: {elapsed:.1f}s")
     return 0
 
