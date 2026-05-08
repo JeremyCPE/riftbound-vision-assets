@@ -30,8 +30,7 @@ python scripts/package_cards.py `
   --repo riftbound-vision-assets `
   --format webp `
   --quality 82 `
-  --split-size-mb 45 `
-  --url-base https://raw.githubusercontent.com/JeremyCPE/riftbound-vision-assets/main/dist
+  --split-size-mb 45
 ```
 
 Outputs are written to `dist/`:
@@ -42,14 +41,16 @@ Outputs are written to `dist/`:
 
 ## Publish Flow
 
-For the beta, the optimized pack is small enough to publish directly in this
-public assets repository:
+ZIP packs are published as GitHub Release assets. Git only stores the small
+`dist/manifest.json` file that points to the release files:
 
 ```powershell
-git add dist/manifest.json dist/cards-overlay-<version>-webp-part*.zip
+git add dist/manifest.json
 git commit -m "assets: publish cards <version>"
 git push
 ```
 
-For larger future packs, publish the ZIP as a GitHub Release asset and generate
-the manifest with the default release URL instead of `--url-base`.
+For version `2026.05.08`, upload these files to the `cards-2026.05.08` release:
+
+- `dist/cards-overlay-2026.05.08-webp-part01.zip`
+- `dist/cards-overlay-2026.05.08-webp-part02.zip`
