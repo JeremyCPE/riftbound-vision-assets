@@ -1,6 +1,8 @@
-dist/
+dist/*
+!dist/manifest.json
+!dist/cards-overlay-*-webp.zip
 *.zip
+!dist/cards-overlay-*-webp.zip
 *.log
 .env
 .env.*
-

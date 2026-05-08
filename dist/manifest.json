@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "version": "2026.05.08",
+  "generated_at": "2026-05-08T14:24:59Z",
+  "packs": [
+    {
+      "id": "cards-overlay",
+      "kind": "overlay",
+      "version": "2026.05.08",
+      "url": "https://raw.githubusercontent.com/JeremyCPE/riftbound-vision-assets/main/dist/cards-overlay-2026.05.08-webp.zip",
+      "sha256": "74dbee017c15869b5f4a561987281bdb27be23e0fe95595d44a555238195ef4d",
+      "size": 90374790,
+      "required": true,
+      "layout": "cards/index.json + cards/images/*",
+      "image_format": "webp",
+      "quality": 82,
+      "max_width": 0,
+      "total_cards": 950,
+      "file_count": 950
+    }
+  ]
+}
