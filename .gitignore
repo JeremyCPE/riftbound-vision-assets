@@ -2,5 +2,8 @@ dist/*
 !dist/manifest.json
 *.zip
 *.log
+.tmp-*
+__pycache__/
+*.py[cod]
 .env
 .env.*

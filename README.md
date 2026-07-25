@@ -25,7 +25,7 @@ From this repository:
 ```powershell
 python scripts/package_cards.py `
   --source G:\sources\riftbound-vision\database\cards `
-  --version 2026.05.08 `
+  --version 2026.07.25 `
   --owner JeremyCPE `
   --repo riftbound-vision-assets `
   --format webp `
@@ -37,6 +37,7 @@ Outputs are written to `dist/`:
 
 - `cards-overlay-<version>-webp-part01.zip`
 - `cards-overlay-<version>-webp-part02.zip`
+- `cards-overlay-<version>-webp-part03.zip`
 - `manifest.json`
 
 ## Publish Flow
@@ -50,7 +51,8 @@ git commit -m "assets: publish cards <version>"
 git push
 ```
 
-For version `2026.05.08`, upload these files to the `cards-2026.05.08` release:
+For version `2026.07.25`, upload these files to the `cards-2026.07.25` release:
 
-- `dist/cards-overlay-2026.05.08-webp-part01.zip`
-- `dist/cards-overlay-2026.05.08-webp-part02.zip`
+- `dist/cards-overlay-2026.07.25-webp-part01.zip`
+- `dist/cards-overlay-2026.07.25-webp-part02.zip`
+- `dist/cards-overlay-2026.07.25-webp-part03.zip`
