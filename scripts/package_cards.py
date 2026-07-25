@@ -64,19 +64,41 @@ def write_pack_zip(
     return file_count
 
 
-def split_images_by_size(image_paths: list[Path], max_bytes: int) -> list[list[Path]]:
-    """Split images into parts below max_bytes where practical."""
+def zip_member_size(path: Path, arcname: str) -> int:
+    """Return the exact ZIP_STORED size contribution for one regular member."""
+    name_size = len(arcname.encode("utf-8"))
+    return path.stat().st_size + 76 + (2 * name_size)
+
+
+def split_images_by_size(
+    image_paths: list[Path],
+    max_bytes: int,
+    *,
+    cards_root: Path | None = None,
+    first_part_reserved_bytes: int = 0,
+) -> list[list[Path]]:
+    """Split images so the resulting ZIP_STORED archives stay below max_bytes."""
     if max_bytes <= 0:
         return [image_paths]
     parts: list[list[Path]] = []
     current: list[Path] = []
-    current_size = 0
+    # Every regular ZIP contains a 22-byte end-of-central-directory record.
+    current_size = 22 + first_part_reserved_bytes
     for image_path in image_paths:
-        image_size = image_path.stat().st_size
+        relative_path = (
+            image_path.relative_to(cards_root / "images").as_posix()
+            if cards_root is not None
+            else image_path.name
+        )
+        image_size = zip_member_size(image_path, f"cards/images/{relative_path}")
         if current and current_size + image_size > max_bytes:
             parts.append(current)
             current = []
-            current_size = 0
+            current_size = 22
+        if current_size + image_size > max_bytes:
+            raise ValueError(
+                f"Image cannot fit in a {max_bytes}-byte ZIP part: {image_path}"
+            )
         current.append(image_path)
         current_size += image_size
     if current:
@@ -204,7 +226,16 @@ def main() -> int:
         image_paths = sorted((package_cards / "images").rglob("*"))
         image_paths = [path for path in image_paths if path.is_file()]
         split_size_bytes = args.split_size_mb * 1024 * 1024
-        image_parts = split_images_by_size(image_paths, split_size_bytes)
+        index_reserved_bytes = zip_member_size(
+            package_cards / "index.json",
+            "cards/index.json",
+        )
+        image_parts = split_images_by_size(
+            image_paths,
+            split_size_bytes,
+            cards_root=package_cards,
+            first_part_reserved_bytes=index_reserved_bytes,
+        )
 
         for index, image_part in enumerate(image_parts, start=1):
             suffix = (
@@ -231,6 +262,10 @@ def main() -> int:
                     "size": pack_path.stat().st_size,
                 }
             )
+            if split_size_bytes > 0 and pack_path.stat().st_size > split_size_bytes:
+                raise RuntimeError(
+                    f"Generated pack exceeds --split-size-mb: {pack_path}"
+                )
 
     with index_path.open(encoding="utf-8") as handle:
         card_index = json.load(handle)
