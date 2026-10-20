@@ -44,3 +44,13 @@ After approval and application release validation:
    Asset publication alone does not update the recognition model.
 
 No release or asset upload was performed while preparing this PR.
+
+## Application upgrade verification (0.1.23 candidate)
+
+The actual application asset installer was exercised locally with both manifests
+and their real ZIP files: 2026.07.25 installed 1,180 cards, then 2026.10.20 replaced
+it with 1,408 cards, including 219 RAD entries. Every referenced image exists.
+Local manifest copies used filesystem URLs; public URLs remain unpublished.
+The application PR also tests bounded retries for Windows file locks and restores
+the previous pack if activation fails. This check does not replace verification
+of public downloads after an explicitly authorized release.
