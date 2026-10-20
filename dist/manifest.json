@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "version": "2026.07.25",
-  "generated_at": "2026-07-25T12:24:51Z",
-  "total_cards": 1180,
+  "version": "2026.10.20",
+  "generated_at": "2026-10-20T04:15:04Z",
+  "total_cards": 1408,
   "packs": [
     {
       "id": "cards-overlay-part-1",
       "kind": "overlay",
-      "version": "2026.07.25",
-      "url": "https://github.com/JeremyCPE/riftbound-vision-assets/releases/download/cards-2026.07.25/cards-overlay-2026.07.25-webp-part01.zip",
-      "sha256": "5e2a46e53658ab5bab5a84d75ef580fcf6f148d0ef422fd1a435e43d4456fcd1",
-      "size": 47118698,
+      "version": "2026.10.20",
+      "url": "https://github.com/JeremyCPE/riftbound-vision-assets/releases/download/cards-2026.10.20/cards-overlay-2026.10.20-webp-part01.zip",
+      "sha256": "b73050b666a680b3a45f38779bfa057018829c5a6ad5ef9eb953b674760c679c",
+      "size": 47125450,
       "required": true,
       "layout": "cards/index.json + cards/images/*",
       "image_format": "webp",
@@ -18,16 +18,16 @@
       "max_width": 0,
       "part": 1,
       "part_count": 3,
-      "total_cards": 1180,
-      "file_count": 489
+      "total_cards": 1408,
+      "file_count": 479
     },
     {
       "id": "cards-overlay-part-2",
       "kind": "overlay",
-      "version": "2026.07.25",
-      "url": "https://github.com/JeremyCPE/riftbound-vision-assets/releases/download/cards-2026.07.25/cards-overlay-2026.07.25-webp-part02.zip",
-      "sha256": "2cc3734e19be1e710fcfd4fb73c31f50f4a9474fba5fe622c38340a369e930f6",
-      "size": 47154980,
+      "version": "2026.10.20",
+      "url": "https://github.com/JeremyCPE/riftbound-vision-assets/releases/download/cards-2026.10.20/cards-overlay-2026.10.20-webp-part02.zip",
+      "sha256": "0be17dcdfd0dedd9e804a1630a1d48b9e9742ff7baf04c3c9619eeaa1b7902c9",
+      "size": 47163002,
       "required": true,
       "layout": "cards/index.json + cards/images/*",
       "image_format": "webp",
@@ -35,16 +35,16 @@
       "max_width": 0,
       "part": 2,
       "part_count": 3,
-      "total_cards": 1180,
-      "file_count": 503
+      "total_cards": 1408,
+      "file_count": 500
     },
     {
       "id": "cards-overlay-part-3",
       "kind": "overlay",
-      "version": "2026.07.25",
-      "url": "https://github.com/JeremyCPE/riftbound-vision-assets/releases/download/cards-2026.07.25/cards-overlay-2026.07.25-webp-part03.zip",
-      "sha256": "bf02a5613aaf81b53859e5faed46a1b9acecb0de85bd676736b02b1fbaadb2a9",
-      "size": 17658934,
+      "version": "2026.10.20",
+      "url": "https://github.com/JeremyCPE/riftbound-vision-assets/releases/download/cards-2026.10.20/cards-overlay-2026.10.20-webp-part03.zip",
+      "sha256": "7acc797e30e973e08d840c323bc6cf087c3a5b95af674e2824e9c082e7817db6",
+      "size": 40091142,
       "required": true,
       "layout": "cards/index.json + cards/images/*",
       "image_format": "webp",
@@ -52,8 +52,8 @@
       "max_width": 0,
       "part": 3,
       "part_count": 3,
-      "total_cards": 1180,
-      "file_count": 189
+      "total_cards": 1408,
+      "file_count": 430
     }
   ]
 }
