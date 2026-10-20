@@ -48,7 +48,7 @@ Publishing the application alone does not publish its card images.
 
 For the Radiance application 0.1.23 candidate, the complete pack is
 `2026.10.20`: 1,408 cards, including 219 RAD and all 1,180 cards from the
-previous public pack. The ZIPs remain local until publication is authorized.
+previous public pack. The ZIPs are staged in an unpublished GitHub release draft for review.
 
 Before publication, validate the local release files:
 
@@ -58,8 +58,8 @@ python scripts/verify_assets.py --manifest dist/manifest.json
 
 After explicit publication approval:
 
-1. Create GitHub release `cards-2026.10.20` and upload all three
-   `dist/cards-overlay-2026.10.20-webp-part*.zip` files.
+1. Publish the reviewed GitHub draft `cards-2026.10.20`, which already contains
+   all three `cards-overlay-2026.10.20-webp-part*.zip` files.
 2. Verify the **actual public downloads**, with no local fallback:
 
    ```powershell
