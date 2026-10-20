@@ -14,14 +14,15 @@ Related application PR: https://github.com/JeremyCPE/riftbound-vision/pull/27.
 - Every catalog image has exactly one archive entry.
 - Archive sizes and SHA256 hashes match `dist/manifest.json`.
 - Each archive is below 45 MiB.
-- Both existing packaging unit tests pass.
+- All six packaging and delivery verification tests pass.
 - Local installation through the application's `ensure_card_assets` was
   previously verified in the application worktree; the installed pack was also
   used for the native OBS display test documented in application PR #27.
 
 The ZIPs are available locally in `G:\sources\riftbound-vision-assets\dist`
-and remain ignored by Git. This PR contains the manifest and this report,
-not the ZIPs or classifier model.
+and remain ignored by Git. The three ZIPs are now also uploaded to the GitHub
+release draft linked below. This PR contains the manifest, verifier and report;
+the classifier model belongs to the application installer.
 
 ## Publication gate
 
@@ -29,13 +30,13 @@ not the ZIPs or classifier model.
 The application reads the manifest directly from `main`; merging changes the
 public download configuration.
 
-At verification time, release `cards-2026.10.20` does not exist. The manifest
-URLs intentionally describe the future release and are not yet downloadable.
+Release `cards-2026.10.20` is staged as a **draft**, with all three ZIPs uploaded.
+The manifest URLs are not yet publicly downloadable.
 The current public pack remains `2026.07.25`, with 1,180 cards.
 
 After approval and application release validation:
 
-1. Upload all three ZIPs to release `cards-2026.10.20`.
+1. Publish the reviewed draft `cards-2026.10.20`, which already contains all three ZIPs.
 2. Verify public downloads and their hashes.
 3. Merge the manifest change only after all URLs work.
 4. Verify first installation and upgrade from the previous pack through the
@@ -43,7 +44,16 @@ After approval and application release validation:
 5. Coordinate with the application release containing the matching classifier.
    Asset publication alone does not update the recognition model.
 
-No release or asset upload was performed while preparing this PR.
+No release was published and the public manifest was not changed.
+
+Draft (visible to authorized repository users):
+https://github.com/JeremyCPE/riftbound-vision-assets/releases/tag/untagged-bde77f0a77b8601e3256
+
+GitHub reports all three assets as uploaded, with sizes and SHA256 digests
+matching the manifest. See `radiance-staging-verification.json`.
+The delivery verifier decoded all 1,408 images and confirmed that all 1,180
+previous card IDs remain present. Run the verifier with `--public` after
+approval and publication, before merging the manifest or deploying the app.
 
 ## Application upgrade verification (0.1.23 candidate)
 
