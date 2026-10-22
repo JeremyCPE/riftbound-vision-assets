@@ -42,6 +42,41 @@ Outputs are written to `dist/`:
 
 ## Publish Flow
 
+**Publish and verify the ZIPs before merging the manifest.** The application
+reads the manifest from `main`, so merging it activates the download URLs.
+Publishing the application alone does not publish its card images.
+
+For the Radiance application 0.1.23 candidate, the complete pack is
+`2026.10.20`: 1,408 cards, including 219 RAD and all 1,180 cards from the
+previous public pack. The ZIPs are staged in an unpublished GitHub release draft for review.
+
+Before publication, validate the local release files:
+
+```powershell
+python scripts/verify_assets.py --manifest dist/manifest.json
+```
+
+After explicit publication approval:
+
+1. Publish the reviewed GitHub draft `cards-2026.10.20`, which already contains
+   all three `cards-overlay-2026.10.20-webp-part*.zip` files.
+2. Verify the **actual public downloads**, with no local fallback:
+
+   ```powershell
+   python scripts/verify_assets.py --manifest dist/manifest.json --public
+   ```
+
+   Stop on any error. The verifier checks sizes, SHA256, ZIP contents, catalog
+   count and every decoded image. Add `--previous-index <old-index.json>` to
+   check that every previous card ID is retained.
+3. Merge the assets manifest PR only after step 2 succeeds.
+4. Test first installation and upgrade through the now-public manifest.
+5. Publish the matching application installer, then its application update
+   manifest. Retain the previous asset release for rollback.
+
+See [Radiance readiness](docs/radiance-readiness.md) for local verification and
+the publication gate.
+
 ZIP packs are published as GitHub Release assets. Git only stores the small
 `dist/manifest.json` file that points to the release files:
 
